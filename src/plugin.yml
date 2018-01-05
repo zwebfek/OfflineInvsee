@@ -1,0 +1,9 @@
+name: OfflineInvsee
+version: 0.8
+main: com.zwebfek.invlet.main
+author: zwebfek
+
+commands:
+  offlineinvsee:
+    usage: /offlineinvsee
+    description: See a players inventory when he is offline
