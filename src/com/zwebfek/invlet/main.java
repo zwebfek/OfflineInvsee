@@ -27,7 +27,7 @@ import java.util.Map.Entry;
 public class main extends JavaPlugin implements Listener {
 
     public void onDisable() {
-    	System.out.print("[OfflineInvsee] disabled");
+        System.out.print("[OfflineInvsee] disabled");
     }
 
     public void onEnable() {
@@ -47,15 +47,15 @@ public class main extends JavaPlugin implements Listener {
                 return false;
             }
             if (args.length == 1) {
-            	Player player = (Player) sender;
-	            player.closeInventory();
+                Player player = (Player) sender;
+                player.closeInventory();
                 if (args[0].equals("self")) {
-                	Inventory inv = player.getInventory();
-                	player.openInventory(inv);
-                	return true;
+                    Inventory inv = player.getInventory();
+                    player.openInventory(inv);
+                    return true;
                 } else {
-                	String invString = getConfig().getString("inventories." + args[0]);
-                	System.out.println(invString);
+                    String invString = getConfig().getString("inventories." + args[0]);
+                    System.out.println(invString);
                     player.openInventory(stringToInventory(invString));
                     return true;
                 }
@@ -91,23 +91,23 @@ public class main extends JavaPlugin implements Listener {
         }
         return serialization;
     }
-   
+
     public static Inventory stringToInventory (String invString) {
         String[] serializedBlocks = invString.split(";");
         String invInfo = serializedBlocks[0];
         Inventory deserializedInventory = Bukkit.getServer().createInventory(null, Integer.valueOf(invInfo));
-       
+
         for (int i = 1; i < serializedBlocks.length; i++) {
             String[] serializedBlock = serializedBlocks[i].split("#");
             int stackPosition = Integer.valueOf(serializedBlock[0]);
-           
+
             if (stackPosition >= deserializedInventory.getSize()) {
                 continue;
             }
-           
+
             ItemStack is = null;
             Boolean createdItemStack = false;
-           
+
             String[] serializedItemStack = serializedBlock[1].split(":");
             for (String itemInfo : serializedItemStack) {
                 String[] itemAttribute = itemInfo.split("@");
