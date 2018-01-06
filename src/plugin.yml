@@ -1,9 +1,15 @@
 name: OfflineInvsee
-version: 0.8
-main: com.zwebfek.invlet.main
+version: 1.0
+main: com.zwebfek.invlet.OfflineInvsee
 author: zwebfek
 
 commands:
   offlineinvsee:
-    usage: /offlineinvsee
-    description: See a players inventory when he is offline
+    usage: /<command> <player>
+    description: See a player's inventory when he/she is offline
+    permission: OfflineInvsee.basic
+    permission-message: You don't have <permission>
+permissions:
+  OfflineInvsee.basic:
+    description: Allow use of the commands in the plugin
+    default: op

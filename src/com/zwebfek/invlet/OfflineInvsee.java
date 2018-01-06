@@ -3,7 +3,6 @@ package com.zwebfek.invlet;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
@@ -18,13 +17,10 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class main extends JavaPlugin implements Listener {
+public class OfflineInvsee extends JavaPlugin implements Listener {
 
     public void onDisable() {
         System.out.print("[OfflineInvsee] disabled");
@@ -32,13 +28,15 @@ public class main extends JavaPlugin implements Listener {
 
     public void onEnable() {
         loadConfiguration();
+        PluginManager pm = Bukkit.getServer().getPluginManager();
+        pm.registerEvents(this, this);
         System.out.print("[OfflineInvsee] enabled");
     }
 
-    public String usage = "Usage: /offlineinvsee <name>";
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (cmd.getName().equals("offlineinvsee")) {
-            if (args.length == 0) {
+        String usage = "Usage: /offlineinvsee <player>";
+        if (cmd.getName().equalsIgnoreCase("offlineinvsee")) {
+            if (args.length != 1) {
                 sender.sendMessage(usage);
                 return false;
             }
@@ -46,25 +44,22 @@ public class main extends JavaPlugin implements Listener {
                 sender.sendMessage(ChatColor.BLUE + "[OfflineInvsee] " + ChatColor.RESET + "Only players can execute this command.");
                 return false;
             }
-            if (args.length == 1) {
+            if (sender.hasPermission("OfflineInvsee.basic") || sender.isOp()) {
                 Player player = (Player) sender;
                 player.closeInventory();
-                if (args[0].equals("self")) {
-                    Inventory inv = player.getInventory();
-                    player.openInventory(inv);
-                    return true;
-                } else {
-                    String invString = getConfig().getString("inventories." + args[0]);
-                    System.out.println(invString);
-                    player.openInventory(stringToInventory(invString));
-                    return true;
-                }
-            }    
+                String invString = getConfig().getString("inventories." + args[0]);
+                System.out.println(invString);
+                player.openInventory(stringToInventory(invString));
+                return true;
+            } else {
+                sender.sendMessage(ChatColor.BLUE + "[OfflineInvsee] " + ChatColor.RESET + "No permission.");
+                return false;
+            }
         }
         return false;
     }
 
-    public static String inventoryToString (Inventory invInventory) {
+    public static String inventoryToString(Inventory invInventory) {
         String serialization = invInventory.getSize() + ";";
         for (int i = 0; i < invInventory.getSize(); i++) {
             ItemStack is = invInventory.getItem(i);
@@ -92,22 +87,18 @@ public class main extends JavaPlugin implements Listener {
         return serialization;
     }
 
-    public static Inventory stringToInventory (String invString) {
+    public static Inventory stringToInventory(String invString) {
         String[] serializedBlocks = invString.split(";");
         String invInfo = serializedBlocks[0];
         Inventory deserializedInventory = Bukkit.getServer().createInventory(null, Integer.valueOf(invInfo));
-
         for (int i = 1; i < serializedBlocks.length; i++) {
             String[] serializedBlock = serializedBlocks[i].split("#");
             int stackPosition = Integer.valueOf(serializedBlock[0]);
-
             if (stackPosition >= deserializedInventory.getSize()) {
                 continue;
             }
-
             ItemStack is = null;
             Boolean createdItemStack = false;
-
             String[] serializedItemStack = serializedBlock[1].split(":");
             for (String itemInfo : serializedItemStack) {
                 String[] itemAttribute = itemInfo.split("@");
@@ -126,7 +117,7 @@ public class main extends JavaPlugin implements Listener {
         }
         return deserializedInventory;
     }
-    
+
     public void loadConfiguration(){
         String path = "init.first";
         getConfig().addDefault(path, "successful");
@@ -134,16 +125,16 @@ public class main extends JavaPlugin implements Listener {
         saveConfig();
         reloadConfig();
     }
-    
+
     @EventHandler (priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         String playerName = player.getName();
         Inventory playerInventory = player.getInventory();
-        getConfig().set("inventories." + playerName, inventoryToString(inventory));
+        getConfig().set("inventories." + playerName, inventoryToString(playerInventory));
         saveConfig();
         reloadConfig();
-        System.out.println("[OfflineInvsee] inventory contents of " + playerName + "have been saved");
+        System.out.println("[OfflineInvsee] inventory contents of " + playerName + " have been saved");
     }
 
 }
